@@ -10,6 +10,7 @@ use runas::Command;
 // We use pigpio to generate and monitor signals on GPIO pins
 
 
+// the pins where the power LED and switch are attached
 const LED_GPIO_PIN: u32 = 18;
 const BUTT_IN_PIN: u32 = 17;
 
@@ -26,23 +27,20 @@ pub struct BoardController {
 impl BoardController {
 
 pub fn new() -> BoardController {
-    let newpi = pigpio::Pi::new();
     BoardController {
-      pi: newpi
+      pi: pigpio::Pi::new() 
     }
 }
 
 fn led_on(&self, duration_secs: u64) {
-  // the LED safety switch I'm using is already tied to +VDC: set GPIO pin low to turn on
+  // the LED safety switch we're using is already tied to +VDC: set GPIO pin low to turn on
   self.pi.write(LED_GPIO_PIN, 0);
-  println!("Bright...");
   sleep(Duration::from_secs(duration_secs));
 }
 
 fn led_off(&self, duration_secs: u64) {
   // the LED safety switch I'm using is already tied to +VDC:  set GPIO pin high to turn off
   self.pi.write(LED_GPIO_PIN, 1);
-  println!("Dark...");
   sleep(Duration::from_secs(duration_secs));
 }
 
@@ -50,14 +48,9 @@ fn fade_led_down(&self, pin: u32 ) {
   self.pi.set_pwm_frequency(pin, LED_PWM_FREQ_HZ); 
   self.pi.set_pwm_range(pin, PWM_FULL_RANGE); // Set range to 1000. 1 range = 2 us;
 
-  //println!("Fade down...");
-  for x in 0..FADE_STEPS{
+  for x in 0..FADE_STEPS {
     let duty_cycle = x * FADE_STEP_VAL;
-    //println!("duty_cycle: {}", duty_cycle);
-    
     self.pi.set_pwm_dutycycle(pin, duty_cycle); 
-    //TODO hardware_pwm doesn't seem to work.  Check docs, impl
-    //hardware_pwm(pin, LED_PWM_FREQ_HZ, duty_cycle).unwrap();
     sleep(Duration::from_millis(FADE_STEP_DELAY_MS))
   }
 }
@@ -66,20 +59,11 @@ fn fade_led_up(&self, pin: u32) {
   self.pi.set_pwm_frequency(pin, LED_PWM_FREQ_HZ);
   self.pi.set_pwm_range(pin, PWM_FULL_RANGE); // Set range to 1000. 1 range = 2 us;
 
-  //println!("Fade up...");
-
-  for x in 0..FADE_STEPS{
+  for x in 0..FADE_STEPS {
     let duty_cycle = PWM_FULL_RANGE - x * FADE_STEP_VAL;
-    //println!("duty_cycle: {}", duty_cycle);
-
     self.pi.set_pwm_dutycycle(pin, duty_cycle);  
-    //TODO hardware_pwm doesn't seem to work.  Check docs, impl
-
-    //let pwm_duty = (duty_cycle / PWM_FULL_RANGE) * 1000000;
-    //hardware_pwm(pin, LED_PWM_FREQ_HZ, pwm_duty).unwrap();
     sleep(Duration::from_millis(FADE_STEP_DELAY_MS))
   }
-
 }
 
 
@@ -107,18 +91,18 @@ fn wait_for_shutdown(&self, cb_fn: pigpio::CallbackFn) {
 
 }//BoardController
 
-fn button_press_cb(gpio: u32,
-    edge: u32,
-    bit: u32) {
+fn button_press_cb(_gpio: u32,
+    _edge: u32,
+    _bit: u32) {
 
   println!("Shutdown button pressed!");	
 
-  let stat = Command::new("shutdown").arg("-h").arg("now").status().expect("failed to shut down!");
-  println!("shutdown exited with: {}", stat);
+  let status = Command::new("shutdown").arg("-h").arg("now").status().expect("failed to shut down!");
+  //it's unlikely the following will ever be printed
+  println!("shutdown exited with: {}", status);
 }
 
 fn main() {
-  println!("Initializing...");
   let bc = BoardController::new();
   println!("Initialized pigpiod. ");
 
@@ -126,10 +110,11 @@ fn main() {
   // GPIO 17 set up as an input, pulled down, connected to 3V3 on button press
   bc.pi.set_mode(BUTT_IN_PIN,  pigpio::PUD_DOWN);
 
-  //rpi_gpio.add_event_detect(17, rpi_gpio.RISING, callback=int_callback, bouncetime=300)
+  //TODO: use event_detect instead?
+  // rpi_gpio.add_event_detect(17, rpi_gpio.RISING, callback=int_callback, bouncetime=300)
 
-  bc.led_on( 1);
-  bc.led_off( 1);
+  bc.led_on(1);
+  bc.led_off(1);
 
   bc.wait_for_shutdown(button_press_cb)
 }
