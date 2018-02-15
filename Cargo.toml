@@ -1,0 +1,11 @@
+[package]
+name = "rusty_rpi_powerbutt"
+version = "0.1.0"
+authors = ["tstellanova"]
+
+[dependencies]
+rustgpio = "0.1.0"
+
+[patch.crates-io]
+rustgpio = { path = "../rust-rpi/rustgpio" }
+
