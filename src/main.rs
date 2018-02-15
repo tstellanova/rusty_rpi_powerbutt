@@ -9,6 +9,8 @@ use std::time::Duration;
 
 
 const LED_GPIO_PIN: u32 = 18;
+const BUTT_IN_PIN: u32 = 17;
+
 const PWM_FULL_RANGE: u32 = 1000;
 const LED_PWM_FREQ_HZ: u32 = 2000;
 const FADE_STEP_DELAY_MS: u64 = 100;
@@ -91,19 +93,39 @@ fn led_fade_cycle(&self, count: u32) {
     self.fade_led_down( LED_GPIO_PIN);
   }
 }
+
+fn wait_for_shutdown(&self, cb_fn: pigpio::CallbackFn) {
+//int callback(int pi, unsigned user_gpio, unsigned edge, CBFunc_t f);
+
+  self.pi.callback(17, 0, cb_fn); 
+  loop {
+    self.led_fade_cycle(1);
+  }
+
+}
+
 }//BoardController
 
+fn button_press_cb(gpio: u32,
+    edge: u32,
+    bit: u32) {
+
+  println!("Button pressed!");	
+}
 
 fn main() {
   println!("Initializing...");
   let bc = BoardController::new();
   println!("Initialized pigpiod. ");
 
-  let rc = bc.pi.set_mode(LED_GPIO_PIN,  pigpio::OUTPUT );
-  println!("set_mode: {}", rc);
+  bc.pi.set_mode(LED_GPIO_PIN,  pigpio::OUTPUT );
+  // GPIO 17 set up as an input, pulled down, connected to 3V3 on button press
+  bc.pi.set_mode(BUTT_IN_PIN,  pigpio::PUD_DOWN);
+
+  //rpi_gpio.add_event_detect(17, rpi_gpio.RISING, callback=int_callback, bouncetime=300)
+
   bc.led_on( 1);
   bc.led_off( 1);
 
-  bc.led_fade_cycle( 5);
-
+  bc.wait_for_shutdown(button_press_cb)
 }
