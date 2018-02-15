@@ -4,6 +4,7 @@ version = "0.1.0"
 authors = ["tstellanova"]
 
 [dependencies]
+runas = "0.1.4"
 rustgpio = "0.1.0"
 
 [patch.crates-io]

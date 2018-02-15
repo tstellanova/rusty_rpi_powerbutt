@@ -1,9 +1,11 @@
 extern crate rustgpio;
+extern crate runas;
 
 use rustgpio::pigpio;
 
 use std::thread::sleep;
 use std::time::Duration;
+use runas::Command;
 
 // We use pigpio to generate and monitor signals on GPIO pins
 
@@ -48,7 +50,7 @@ fn fade_led_down(&self, pin: u32 ) {
   self.pi.set_pwm_frequency(pin, LED_PWM_FREQ_HZ); 
   self.pi.set_pwm_range(pin, PWM_FULL_RANGE); // Set range to 1000. 1 range = 2 us;
 
-  println!("Fade down...");
+  //println!("Fade down...");
   for x in 0..FADE_STEPS{
     let duty_cycle = x * FADE_STEP_VAL;
     //println!("duty_cycle: {}", duty_cycle);
@@ -64,7 +66,7 @@ fn fade_led_up(&self, pin: u32) {
   self.pi.set_pwm_frequency(pin, LED_PWM_FREQ_HZ);
   self.pi.set_pwm_range(pin, PWM_FULL_RANGE); // Set range to 1000. 1 range = 2 us;
 
-  println!("Fade up...");
+  //println!("Fade up...");
 
   for x in 0..FADE_STEPS{
     let duty_cycle = PWM_FULL_RANGE - x * FADE_STEP_VAL;
@@ -95,7 +97,6 @@ fn led_fade_cycle(&self, count: u32) {
 }
 
 fn wait_for_shutdown(&self, cb_fn: pigpio::CallbackFn) {
-//int callback(int pi, unsigned user_gpio, unsigned edge, CBFunc_t f);
 
   self.pi.callback(17, 0, cb_fn); 
   loop {
@@ -110,7 +111,10 @@ fn button_press_cb(gpio: u32,
     edge: u32,
     bit: u32) {
 
-  println!("Button pressed!");	
+  println!("Shutdown button pressed!");	
+
+  let stat = Command::new("shutdown").arg("-h").arg("now").status().expect("failed to shut down!");
+  println!("shutdown exited with: {}", stat);
 }
 
 fn main() {
