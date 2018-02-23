@@ -1,0 +1,13 @@
+[Unit]
+Description=Power Button Shutdown Service
+After=network.target pigpiod.service
+
+[Service]
+Type=simple
+User=pi
+WorkingDirectory=/home/pi
+ExecStart=/home/pi/Documents/proj/rusty_rpi_powerbutt/target/release/rusty_rpi_powerbutt
+Restart=on-abort
+
+[Install]
+WantedBy=multi-user.target

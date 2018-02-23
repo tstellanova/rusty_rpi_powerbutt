@@ -17,7 +17,7 @@ const BUTT_IN_PIN: u32 = 17;
 const PWM_FULL_RANGE: u32 = 1000;
 const LED_PWM_FREQ_HZ: u32 = 2000;
 const FADE_STEP_DELAY_MS: u64 = 100;
-const FADE_STEPS: u32 = 25;
+const FADE_STEPS: u32 = 12;
 const FADE_STEP_VAL: u32 = (PWM_FULL_RANGE / FADE_STEPS);
 
 pub struct BoardController {
