@@ -82,7 +82,8 @@ fn led_fade_cycle(&self, count: u32) {
 
 fn wait_for_shutdown(&self, cb_fn: pigpio::CallbackFn) {
 
-  self.pi.callback(17, 0, cb_fn); 
+  // setup pigpio waiting for the input GPIO pin to change
+  self.pi.callback(BUTT_IN_PIN, 0, cb_fn); 
   loop {
     self.led_fade_cycle(1);
   }
