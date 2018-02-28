@@ -1,17 +1,18 @@
 # rusty_rpi_powerbutt
-Power button for Raspberry Pi 3 using Rust
+Graceful shutdown power button for Raspberry Pi 3 using Rust
 
 Use a hardware power button attached to two GPIO pins to:
 - Indicate that the RPi has power
 - Allow the user to gracefully shutdown the RPi
 
-Also, detect low power condition (where the USB supply voltage drops below +5V)
+Also, detect low power/"brownout" condition (where the USB supply voltage drops below +5V)
 and shut down the RPi3 gracefully.
 
-### Dependencies
-- Currently we utilize `pigpiod` to allow any process to access the GPIO pins, and to eg drive the power indication light with PWM 
-- TODO currently we require a special fork of the `rustgpio` crate that supports PWM in order to drive the LED fade up/down.   
-- Using the (rp3_firmware_access)[https://github.com/tstellanova/rpi3_firmware_access] crate to allow us to detect the low power condition.
+### Dependencieo
+- Currently we utilize `pigpiod` to allow any user process to access the GPIO pins, and to eg drive the power indication light with PWM 
+- You can follow [these instructions to install pigpiod](https://gist.github.com/tstellanova/8b1fb350a148eace6541b5fbd2c021ca)
+- TODO currently we use a special rust wrapper around `pigpiod` to detect the shutdown switch state change and drive the indicator LED fade up/down with PWM.  Publication of this wrapper is forthcoming.
+- Using the [rp3_firmware_access](https://github.com/tstellanova/rpi3_firmware_access) crate to allow us to detect the low power condition.
  
 ### Hardware required
 - RPi3 or similar (untested on other hardware) 
