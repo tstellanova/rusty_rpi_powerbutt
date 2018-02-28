@@ -7,6 +7,7 @@ Use a hardware power button attached to two GPIO pins to:
 
 ### Dependencies
 - Currently we utilize `pigpiod` to allow any process to access the GPIO pins, and to eg drive the power indication light with PWM 
+- TODO currently we require a special fork of the `rustgpio` crate that supports PWM in order to drive the LED fade up/down.   
 
 ### Hardware required
 - We use a combo LED + SPST switch similar to the [E-Switch B200202](http://spec_sheets.e-switch.com/specs/B200202.pdf)
