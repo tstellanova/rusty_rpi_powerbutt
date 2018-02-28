@@ -1,7 +1,8 @@
-extern crate rustgpio;
+extern crate pigrust;
 extern crate runas;
+extern crate rpi3_firmware_access;
 
-use rustgpio::pigpio;
+use pigrust::pigpio;
 
 use std::thread::sleep;
 use std::time::Duration;
@@ -67,11 +68,6 @@ fn fade_led_up(&self, pin: u32) {
 }
 
 
-/*
-   gpio: see description
-PWMfreq: 0 (off) or 1-125000000 (125M)
-PWMduty: 0 (off) to 1000000 (1M)(fully on)
-*/
 
 fn led_fade_cycle(&self, count: u32) {
   for _x in 0..count {
@@ -86,21 +82,34 @@ fn wait_for_shutdown(&self, cb_fn: pigpio::CallbackFn) {
   self.pi.callback(BUTT_IN_PIN, 0, cb_fn); 
   loop {
     self.led_fade_cycle(1);
+    let val = rpi3_firmware_access::utils::get_power_status();
+    if 1 != val {
+      println!("shutting down on low power!");
+      perform_shutdown();   
+    }
   }
 
 }
 
 }//BoardController
 
+fn perform_shutdown() {
+  println!("shutting down...");
+  let status = Command::new("shutdown").arg("-h").arg("now").status().expect("failed to shut down!");
+  //it's unlikely the following will ever be printed
+  println!("shutdown exited with: {}", status);
+}
+
 fn button_press_cb(_gpio: u32,
     _edge: u32,
     _bit: u32) {
 
   println!("Shutdown button pressed!");	
+  perform_shutdown();
 
-  let status = Command::new("shutdown").arg("-h").arg("now").status().expect("failed to shut down!");
+  //let status = Command::new("shutdown").arg("-h").arg("now").status().expect("failed to shut down!");
   //it's unlikely the following will ever be printed
-  println!("shutdown exited with: {}", status);
+  //println!("shutdown exited with: {}", status);
 }
 
 fn main() {

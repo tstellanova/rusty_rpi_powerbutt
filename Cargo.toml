@@ -1,12 +1,15 @@
 [package]
 name = "rusty_rpi_powerbutt"
 version = "0.1.0"
-authors = ["tstellanova"]
+authors = ["Todd Stellanova <tstellanova@users.noreply.github.com>"]
+
 
 [dependencies]
 runas = "0.1.4"
-rustgpio = "0.1.0"
+pigrust = "0.1.0"
+rpi3_firmware_access = "0.1.0"
 
 [patch.crates-io]
-rustgpio = { path = "../rust-rpi/rustgpio" }
+rpi3_firmware_access = { git = "https://github.com/tstellanova/rpi3_firmware_access" }
+pigrust = { path = "../pigrust" }
 

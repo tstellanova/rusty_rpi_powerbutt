@@ -8,6 +8,9 @@ User=pi
 WorkingDirectory=/home/pi
 ExecStart=/home/pi/Documents/proj/rusty_rpi_powerbutt/target/release/rusty_rpi_powerbutt
 Restart=on-abort
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=powerbutt
 
 [Install]
 WantedBy=multi-user.target
