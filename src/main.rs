@@ -108,7 +108,12 @@ fn main() {
   bc.set_pull_up_down(BUTT_IN_PIN, GpioPullOption::Down);
 
   // setup pigpio waiting for the input GPIO pin to change
-  bc.add_edge_detector(BUTT_IN_PIN,  GpioEdgeDetect::RisingEdge, butt_press_cb_fn);
+  bc.add_edge_detector_closure(BUTT_IN_PIN, GpioEdgeDetect::FallingEdge,
+      |gpio, level| {
+          println!("main closure! with {} {} ", gpio, level);
+	  perform_shutdown();
+      }
+  );
 
   bc.setup_led_pin();
   loop {
